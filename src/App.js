@@ -40,7 +40,8 @@ const App = () => {
   }
 
 
-  let differentRequestStates = <p>Found no movies</p>
+  let differentRequestStates
+  
   if(isLoading) {
     differentRequestStates = <p>Retrieving Data, please wait...</p>
   }
