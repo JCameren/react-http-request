@@ -5,13 +5,21 @@ import MovieList from './components/Movie/MovieList/MovieList';
 const App = () => {
   const [movies, setMovies] = useState([])
   const [isLoading, setIsLoading] = useState(false)
-
-
+  const [error, setError] = useState(null)
 
   const fetchMovieHandler = async() => {
     setIsLoading(true)
-    const response = await fetch('https://swapi.dev/api/films')
-    const data = await response.json()
+    setError(null)
+    try {
+      const response = await fetch('https://swapi.dev/api/films/')
+
+      if (!response.ok) {
+        throw new Error('Something went wrong here...')
+      }
+
+      const data = await response.json()
+
+
 
     const transformedMovies = data.results.map(movieData => {
       return {
@@ -23,6 +31,27 @@ const App = () => {
     })
     setMovies(transformedMovies)
     setIsLoading(false)
+    }
+    catch (error) {
+      setError(error.message)
+
+    }
+    setIsLoading(false)
+  }
+
+
+  let differentRequestStates = <p>Found no movies</p>
+  if(isLoading) {
+    differentRequestStates = <p>Retrieving Data, please wait...</p>
+  }
+  if (!isLoading && movies.length > 0) {
+    differentRequestStates = <MovieList movie={movies} />
+  }
+  if(!isLoading && movies.length === 0 && !error) {
+    differentRequestStates = <p>Found no movies.</p>
+  }
+  if(!isLoading && error) {
+    differentRequestStates = <p>{error}</p>
   }
   return (
     <React.Fragment>
@@ -30,9 +59,7 @@ const App = () => {
       <button onClick={fetchMovieHandler}>Fetch Movies</button>
     </section>
     <section>
-      {isLoading && <p>Retrieving Data, please wait...</p>}
-      {!isLoading && movies.length > 0 && <MovieList movie={movies} />}
-      {!isLoading && movies.length === 0 && <p>Found no movies.</p>}
+      {differentRequestStates}
     </section>
   </React.Fragment>
   )
